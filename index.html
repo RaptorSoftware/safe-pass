@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SafePass — Менеджер паролей</title>
+  <meta name="description" content="SafePass — безопасный и простой менеджер паролей для Windows. Генератор паролей, защищённые заметки, шифрование AES-256.">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">   
+  <style>
+    :root{
+      --bg:#071014;
+      --panel:#0f171b;
+      --muted:#a9b0b4;
+      --accent:#00d7c7;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+      background:linear-gradient(180deg,var(--bg),#031015 120%);
+      color:#e6eef0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+    }
+    a{color:var(--accent); text-decoration:none}
+    header{
+      backdrop-filter: blur(6px);
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-bottom:1px solid rgba(255,255,255,0.03);
+      padding:18px 28px;
+      position:sticky; top:0; z-index:40;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand{display:flex; align-items:center; gap:14px}
+    .brand img{height:48px; width:auto; display:block}
+    .brand h1{font-size:1.2rem; margin:0; color:var(--accent); letter-spacing:1px}
+    nav{display:flex; gap:18px; align-items:center}
+    nav a{color:#cfe8e6; font-weight:600; padding:8px 10px; border-radius:8px}
+    nav a:hover{background:rgba(0,215,199,0.06); color:var(--accent)}
+
+    .container{max-width:var(--maxw); margin:30px auto; padding:0 20px}
+
+    /* Hero */
+    .hero{
+      display:grid; grid-template-columns:1fr 420px; gap:32px; align-items:center; margin-top:10px;
+    }
+    .hero-card{background:var(--panel); border-radius:var(--radius); padding:34px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.02)}
+    .hero h2{margin:0 0 12px 0; color:var(--accent); font-size:2rem}
+    .hero p{margin:0 0 18px 0; color:var(--muted)}
+    .buttons{display:flex; gap:12px; align-items:center}
+    .btn{background:var(--accent); color:#012022; padding:10px 16px; border-radius:999px; font-weight:700}
+    .btn.secondary{background:transparent; border:1px solid rgba(255,255,255,0.04); color:#cfe8e6}
+
+    /* Features */
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:28px}
+    .feature{background:var(--glass); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.02)}
+    .feature h4{margin:10px 0 6px 0; color:var(--accent)}
+    .feature p{margin:0; color:var(--muted); font-size:14px}
+
+    /* Demo panels */
+    .panel{background:#071419; border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,0.03)}
+    .panel h3{margin:0 0 10px 0; color:var(--accent)}
+    .generator{display:flex; gap:10px; align-items:center}
+    input[type=text], textarea{background:transparent; border:1px solid rgba(255,255,255,0.04); padding:10px 12px; border-radius:8px; color:#e6eef0; width:100%}
+    .controls{display:flex; gap:8px; align-items:center; margin-top:10px}
+    .chip{padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); font-size:13px}
+
+    /* Notes */
+    .notes-list{display:flex; gap:12px; flex-direction:column}
+    .note-item{background:#0b1719; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02)}
+
+    /* Info sections */
+    section{margin-top:48px}
+    .split{display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start}
+
+    /* FAQ */
+    .faq-item{background:transparent; border:1px solid rgba(255,255,255,0.03); padding:14px; border-radius:10px}
+    .faq-q{display:flex; justify-content:space-between; align-items:center; cursor:pointer}
+    .faq-a{margin-top:10px; color:var(--muted); display:none}
+
+    /* Pricing */
+    .pricing{display:flex; gap:18px}
+    .card{flex:1}
+
+    footer{margin-top:60px; padding:32px 20px; text-align:center; color:#8fa3a6}
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr;}
+      .grid-3{grid-template-columns:repeat(2,1fr)}
+      .split{grid-template-columns:1fr}
+      nav{display:none}
+    }
+    @media (max-width:600px){
+      .grid-3{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <!-- <img src="20250923_2230_Логотип SafePass_simple_compose_01k5w0rj37fm9bn8svcd0cykjk.png" alt="SafePass logo"> -->
+      <h1>SafePass</h1>
+    </div>
+    <nav>
+      <a href="#about">О программе</a>
+      <a href="#features">Функции</a>
+      <a href="#demo">Демо</a>
+      <a href="#security">Безопасность</a>
+      <a href="#faq">FAQ</a>
+      <a href="#download">Скачать</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-card">
+        <h2>SafePass — ваш персональный менеджер паролей</h2>
+        <p>Простой, защищённый и быстрый менеджер паролей для Windows. Генератор паролей и защищённые заметки — всё, что нужно для безопасной работы в сети.</p>
+        <div class="buttons">
+          <a class="btn" href="#download">Скачать</a>
+          <a class="btn secondary" href="#demo">Попробовать демо</a>
+        </div>
+
+        <div class="grid-3" style="margin-top:22px">
+          <div class="feature">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M12 1L3 5v6c0 5 3.6 9.4 9 11 5.4-1.6 9-6 9-11V5l-9-4z" stroke="url(#g)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+              <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#00d7c7" offset="0"/><stop stop-color="#00b2ff" offset="1"/></linearGradient></defs>
+            </svg>
+            <h4>AES‑256 шифрование</h4>
+            <p>Надёжное локальное шифрование вашего хранилища.</p>
+          </div>
+          <div class="feature">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M12 17v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+              <rect x="4" y="3" width="16" height="14" rx="2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" fill="none"></rect>
+            </svg>
+            <h4>Автозаполнение</h4>
+            <p>Поддержка автозаполнения в приложениях и браузерах.</p>
+          </div>
+          <div class="feature">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M12 2v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+              <path d="M6 21h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+            </svg>
+            <h4>Интуитивный интерфейс</h4>
+            <p>Минималистичный UI — быстрое и понятное управление.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE DEMO -->
+      <aside class="panel">
+        <!-- <img src="20250923_2230_Логотип SafePass_simple_compose_01k5w0rj37fm9bn8svcd0cykjk.png" alt="logo" style="height:72px; display:block; margin:0 auto 12px auto"> -->
+        <h3>Быстрый старт</h3>
+        <p style="color:var(--muted); font-size:14px; margin-top:6px">Создайте мастер‑пароль, импортируйте существующие логины и начните автоматически заполнять поля.</p>
+        <div style="margin-top:12px; display:flex; gap:8px">
+          <a class="chip">Windows</a>
+          <a class="chip">Локальное хранилище</a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="split">
+        <div>
+          <h3 style="color:var(--accent); margin:0 0 12px">Что такое SafePass</h3>
+          <p style="color:var(--muted); margin:0">SafePass — это приложение, которое хранит ваши пароли и важные заметки в зашифрованной базе. Только вы имеете доступ к мастер‑паролю, который служит ключом к вашему хранилищу.</p>
+
+          <div style="margin-top:20px; display:grid; gap:12px">
+            <div class="panel">
+              <strong>Генератор паролей</strong>
+              <p style="color:var(--muted); margin:8px 0 0">Мощный генератор создаёт пароли заданной длины с набором символов (буквы, цифры, спецсимволы).</p>
+            </div>
+            <div class="panel">
+              <strong>Заметки</strong>
+              <p style="color:var(--muted); margin:8px 0 0">Защищённые заметки позволяют хранить коды, лицензии и другую приватную информацию.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="color:var(--accent); margin:0 0 12px">Коротко о преимуществах</h3>
+          <ul style="color:var(--muted); padding-left:18px; margin-top:8px">
+            <li>Локальное шифрование AES‑256, без отправки данных на серверы (опционально — синхронизация).</li>
+            <li>Генерация надёжных паролей и управление заметками.</li>
+            <li>Экспорт/импорт данных в зашифрованном виде.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEMO -->
+    <section id="demo">
+      <h3 style="color:var(--accent); margin-bottom:12px">Демо: генератор паролей и заметки</h3>
+      <div class="split">
+        <!-- Generator -->
+        <div class="panel">
+          <h3>Генератор паролей</h3>
+          <p style="color:var(--muted); margin-top:6px">Выбирайте длину и типы символов — нажмите <strong>Сгенерировать</strong>.</p>
+          <div style="margin-top:12px" class="generator">
+            <input id="genResult" type="text" readonly value="" placeholder="Сгенерированный пароль появится здесь">
+            <button class="btn" id="genBtn">Сгенерировать</button>
+          </div>
+          <div class="controls">
+            <label class="chip"><input id="useLower" type="checkbox" checked> a‑z</label>
+            <label class="chip"><input id="useUpper" type="checkbox" checked> A‑Z</label>
+            <label class="chip"><input id="useDigits" type="checkbox" checked> 0‑9</label>
+            <label class="chip"><input id="useSymbols" type="checkbox" checked> @#$%*</label>
+            <label class="chip">Длина: <input id="length" type="number" min="4" max="64" value="16" style="width:68px; margin-left:6px"></label>
+          </div>
+          <p style="color:var(--muted); margin-top:10px">Нажмите поле, чтобы скопировать пароль в буфер обмена.</p>
+        </div>
+
+        <!-- Notes -->
+        <div class="panel">
+          <h3>Защищённые заметки (локально)</h3>
+          <p style="color:var(--muted); margin-top:6px">Создавайте заметки, они будут храниться локально в браузере (демо). В приложении — в зашифрованном хранилище.</p>
+          <div style="margin-top:12px">
+            <input id="noteTitle" type="text" placeholder="Название заметки">
+            <textarea id="noteBody" rows="6" placeholder="Текст заметки" style="margin-top:8px"></textarea>
+            <div style="display:flex; gap:8px; margin-top:8px">
+              <button class="btn" id="saveNote">Сохранить</button>
+              <button class="btn secondary" id="clearNotes">Очистить все</button>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <h4 style="margin:0 0 8px 0; color:var(--accent)">Ваши заметки</h4>
+            <div id="notesList" class="notes-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Security -->
+    <section id="security">
+      <h3 style="color:var(--accent); margin-bottom:12px">Безопасность и политика приватности</h3>
+      <div class="panel">
+        <p style="color:var(--muted)">SafePass использует локальное шифрование AES‑256 для хранения данных. Мастер‑пароль не отправляется на сервер и не хранится нигде в открытом виде. В приложении реализованы дополнительные меры защиты: PBKDF2/Argon2 для генерации ключей, опциональная синхронизация через безопасный облачный шлюз с end‑to‑end шифрованием.</p>
+        <h4 style="color:var(--accent); margin-top:12px">Рекомендации</h4>
+        <ul style="color:var(--muted); margin-top:6px">
+          <li>Используйте длинный и уникальный мастер‑пароль.</li>
+          <li>Включите двухфакторную аутентификацию, если доступна.</li>
+          <li>Регулярно делайте резервные копии зашифрованного файла экспорта.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <h3 style="color:var(--accent); margin-bottom:12px">Частые вопросы</h3>
+      <div class="faq-item">
+        <div class="faq-q"> <strong>Как восстановить доступ, если забыл мастер‑пароль?</strong> <span>+</span></div>
+        <div class="faq-a">Мы не храним ваш мастер‑пароль. Восстановление возможно только из резервной копии зашифрованного файла.</div>
+      </div>
+      <div class="faq-item" style="margin-top:8px">
+        <div class="faq-q"> <strong>SafePass бесплатный или платный?</strong> <span>+</span></div>
+        <div class="faq-a">Доступна бесплатная версия. Премиум-версия добавляет дополнительные функции (например, облачную синхронизацию).</div>
+      </div>
+    </section>
+
+
+    
+
+    <footer>
+      <div style="max-width:var(--maxw); margin:0 auto">
+        <p>© 2025 SafePass — безопасное хранение паролей. Разработано для Windows.</p>
+        <p style="margin-top:6px">Политика конфиденциальности • Условия использования</p>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // ---------- Password generator ----------
+    function genPassword(opts){
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const digits = '0123456789';
+      const symbols = '!@#$%^&*()-_=+[]{};:,.<>/?';
+      let chars = '';
+      if(opts.lower) chars += lower;
+      if(opts.upper) chars += upper;
+      if(opts.digits) chars += digits;
+      if(opts.symbols) chars += symbols;
+      if(!chars) return '';
+      let out = '';
+      // crypto-safe generation
+      const array = new Uint32Array(opts.length);
+      window.crypto.getRandomValues(array);
+      for(let i=0;i<opts.length;i++){
+        out += chars[array[i] % chars.length];
+      }
+      return out;
+    }
+    document.getElementById('genBtn').addEventListener('click', ()=>{
+      const length = Math.min(64, Math.max(4, Number(document.getElementById('length').value)||16));
+      const opts = {lower:document.getElementById('useLower').checked, upper:document.getElementById('useUpper').checked, digits:document.getElementById('useDigits').checked, symbols:document.getElementById('useSymbols').checked, length};
+      const p = genPassword(opts);
+      const out = document.getElementById('genResult');
+      out.value = p;
+      out.focus(); out.select();
+    });
+    document.getElementById('genResult').addEventListener('click', (e)=>{
+      if(e.target.value){
+        navigator.clipboard.writeText(e.target.value).then(()=>{
+          const old = e.target.value;
+          e.target.value = 'Скопировано!';
+          setTimeout(()=> e.target.value = old,900);
+        });
+      }
+    });
+
+    // ---------- Notes (localStorage demo) ----------
+    const notesKey = 'safepass_demo_notes_v1';
+    function loadNotes(){
+      const raw = localStorage.getItem(notesKey);
+      return raw ? JSON.parse(raw) : [];
+    }
+    function saveNotes(notes){ localStorage.setItem(notesKey, JSON.stringify(notes)); }
+    function renderNotes(){
+      const list = document.getElementById('notesList'); list.innerHTML='';
+      const notes = loadNotes();
+      if(!notes.length) { list.innerHTML='<div style="color:var(--muted)">Заметок пока нет.</div>'; return; }
+      notes.slice().reverse().forEach((n, idx)=>{
+        const el = document.createElement('div'); el.className='note-item';
+        el.innerHTML = `<strong>${escapeHtml(n.title)}</strong><div style="color:var(--muted); margin-top:6px; white-space:pre-wrap">${escapeHtml(n.body)}</div><div style=\"margin-top:8px; display:flex; gap:8px\"><button data-i=\"${idx}\" class=\"btn\">Копировать</button><button data-i=\"${idx}\" class=\"btn secondary\">Удалить</button></div>`;
+        list.appendChild(el);
+      });
+      // attach handlers
+      list.querySelectorAll('.btn').forEach(b=>{
+        b.addEventListener('click', (ev)=>{
+          const i = Number(ev.currentTarget.getAttribute('data-i'));
+          const notes = loadNotes();
+          const note = notes.slice().reverse()[i];
+          if(ev.currentTarget.textContent.includes('Копировать')) {
+            navigator.clipboard.writeText(note.title + '\n' + note.body);
+            ev.currentTarget.textContent='Скопировано!'; setTimeout(()=> ev.currentTarget.textContent='Копировать',900);
+            return;
+          }
+          if(ev.currentTarget.textContent.includes('Удалить')){
+            // remove from original array
+            const realIndex = notes.length - 1 - i;
+            notes.splice(realIndex,1);
+            saveNotes(notes);
+            renderNotes();
+          }
+        })
+      });
+    }
+    document.getElementById('saveNote').addEventListener('click', ()=>{
+      const t = document.getElementById('noteTitle').value.trim();
+      const b = document.getElementById('noteBody').value.trim();
+      if(!t && !b) return alert('Введите текст заметки');
+      const notes = loadNotes();
+      notes.push({title:t || 'Без названия', body:b});
+      saveNotes(notes); renderNotes();
+      document.getElementById('noteTitle').value=''; document.getElementById('noteBody').value='';
+    });
+    document.getElementById('clearNotes').addEventListener('click', ()=>{
+      if(confirm('Очистить все заметки?')){ localStorage.removeItem(notesKey); renderNotes(); }
+    });
+    function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; }); }
+    renderNotes();
+
+    // ---------- FAQ toggle ----------
+    document.querySelectorAll('.faq-item').forEach(item=>{
+      const q = item.querySelector('.faq-q'); const a = item.querySelector('.faq-a');
+      q.addEventListener('click', ()=>{ if(a.style.display==='block'){ a.style.display='none'; q.querySelector('span').textContent='+' } else { a.style.display='block'; q.querySelector('span').textContent='–' } });
+    });
+  </script>
+</body>
+</html>
