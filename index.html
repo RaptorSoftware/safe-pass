@@ -10,7 +10,40 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">   
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
   <style>
+.tech-header {
+    font-family: 'Orbitron', monospace;
+    font-size: 3.5rem;
+    font-weight: 900;
+    /* color: #00ff00; */
+    color:var(--accent);
+    text-shadow: 
+        /* 0 0 10px #00ff00,
+        0 0 20px #00ff00,
+        0 0 30px #00ff00; */
+        0 0 10px var(--accent),
+        0 0 20px var(--accent),
+        0 0 30px var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 20px 0;
+    position: relative;
+    display: inline-block;
+}
+
+.tech-header::before {
+    content: '>';
+    /*color: #00ff00; */
+    color:var(--accent);
+    margin-right: 10px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
     :root{
       --bg:#071014;
       --panel:#0f171b;
@@ -42,7 +75,7 @@
     }
     .brand{display:flex; align-items:center; gap:14px}
     .brand img{height:48px; width:auto; display:block}
-    .brand h1{font-size:1.2rem; margin:0; color:var(--accent); letter-spacing:1px}
+    .brand h1{font-size:1.2rem; margin:0; letter-spacing:1px;}
     nav{display:flex; gap:18px; align-items:center}
     nav a{color:#cfe8e6; font-weight:600; padding:8px 10px; border-radius:8px}
     nav a:hover{background:rgba(0,215,199,0.06); color:var(--accent)}
@@ -109,11 +142,11 @@
   <header>
     <div class="brand">
       <!-- <img src="20250923_2230_Логотип SafePass_simple_compose_01k5w0rj37fm9bn8svcd0cykjk.png" alt="SafePass logo"> -->
-      <h1>SafePass</h1>
+      <h1 class="tech-header">SafePass</h1>
     </div>
     <nav>
       <a href="#about">О программе</a>
-      <a href="#features">Функции</a>
+      <a href="main.html">Начало работы</a>
       <a href="#demo">Демо</a>
       <a href="#security">Безопасность</a>
       <a href="#faq">FAQ</a>
@@ -196,7 +229,7 @@
           <ul style="color:var(--muted); padding-left:18px; margin-top:8px">
             <li>Локальное шифрование AES‑256, без отправки данных на серверы (опционально — синхронизация).</li>
             <li>Генерация надёжных паролей и управление заметками.</li>
-            <li>Экспорт/импорт данных в зашифрованном виде.</li>
+            <li>Импорт данных в txt - файл.</li>
           </ul>
         </div>
       </div>
